@@ -9,7 +9,21 @@ Content-Type: application/json
 }
  
 ###
-@CheckingAccountId=8623ea11-1d0d-4987-8077-8e92d69fb5a3
+@CheckingAccountId=db3a8f55-726c-4552-a762-7057a112ead0
 ###
 GET {{BaseUrl}}/CheckingAccount/{{CheckingAccountId}}/balance
+Content-Type: application/json   
+###
+POST {{BaseUrl}}/CheckingAccount/{{CheckingAccountId}}/debit
 Content-Type: application/json 
+
+{
+  "Amount": 1000
+}
+###
+POST {{BaseUrl}}/CheckingAccount/{{CheckingAccountId}}/credit
+Content-Type: application/json 
+
+{
+  "Amount": 500
+}

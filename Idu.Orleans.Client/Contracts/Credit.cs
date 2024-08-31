@@ -3,8 +3,8 @@
 namespace Idu.Orleans.Client.Contracts;
 
 [DataContract]
-public record CreateAccount
+public class Credit
 {
     [DataMember]
-    public decimal OpeningBalance { get; init; }
+    public decimal Amount { get; init; }
 }

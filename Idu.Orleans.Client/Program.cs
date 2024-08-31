@@ -1,6 +1,7 @@
 using Idu.Orleans.Client.Contracts;
 using Idu.Orleans.Grains.Abstractions;
 using Orleans.Configuration;
+using Orleans.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,18 +20,20 @@ builder.Host.UseOrleansClient((context, client) =>
         options.ClusterId = "IduCluster";
         options.ServiceId = "IduService";
     });
+
+
 });
 
 var app = builder.Build();
 
-app.MapGet("CheckingAccount/{checkingAccountId:guid}/balance",
+app.MapGet("CheckingAccount/{checkingAccountId}/balance",
     async (
         Guid checkingAccountId,
         IClusterClient clusterClient) =>
     {
         var checkingAccountGrain = clusterClient.GetGrain<ICheckingAcountGrain>(checkingAccountId);
 
-        var balance=await checkingAccountGrain.GetBalance();
+        var balance = await checkingAccountGrain.GetBalance();
 
         return TypedResults.Ok(balance);
     });
@@ -48,5 +51,37 @@ app.MapPost("CheckingAccount",
 
     return TypedResults.Created($"CheckingAccount/{checkingAccountId}");
 });
+
+app.MapPost("CheckingAccount/{checkingAccountId}/debit",
+    async (
+         Guid checkingAccountId,
+        Debit debit,
+    IClusterClient clusterClient) =>
+    {
+
+        var checkingAccountGrain = clusterClient.GetGrain<ICheckingAcountGrain>(checkingAccountId);
+
+        await checkingAccountGrain.Debit(debit.Amount);
+
+        return TypedResults.NoContent();
+    });
+ 
+
+
+app.MapPost("CheckingAccount/{checkingAccountId}/credit",
+    async (
+         Guid checkingAccountId,
+        Credit credit,
+    IClusterClient clusterClient) =>
+    {
+
+        var checkingAccountGrain = clusterClient.GetGrain<ICheckingAcountGrain>(checkingAccountId);
+
+        await checkingAccountGrain.Credit(credit.Amount);
+
+        return TypedResults.NoContent();
+    });
+
+
 
 app.Run();

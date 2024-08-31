@@ -18,6 +18,18 @@ await Host.CreateDefaultBuilder(args)
                 options.ServiceId = "IduService";
             });
 
+            siloBuilder.AddAdoNetGrainStorage("BalanceStorage", options =>
+            {
+                options.Invariant = "System.Data.SqlClient";
+                options.ConnectionString = "Server=SUHUT-TUF;Database=IDU_ORLEANS;TrustServerCertificate=True;Trusted_Connection=True;MultipleActiveResultSets=true;Application Name=OrleansApp;";
+            });
+
+            siloBuilder.AddAdoNetGrainStorage("CheckingAccountStorage", options =>
+            {
+                options.Invariant = "System.Data.SqlClient";
+                options.ConnectionString = "Server=SUHUT-TUF;Database=IDU_ORLEANS;TrustServerCertificate=True;Trusted_Connection=True;MultipleActiveResultSets=true;Application Name=OrleansApp;";
+            });
+
             //siloBuilder.Configure<GrainCollectionOptions>(options =>
             //{
             //    options.CollectionQuantum = TimeSpan.FromSeconds(20);

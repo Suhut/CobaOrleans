@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\Idu.Orleans.Client.props" />
-</Project>

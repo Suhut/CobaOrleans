@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\Idu.Orleans.Client.props" />
+</Project>

@@ -1,0 +1,15 @@
+@BaseUrl=https://localhost:7044
+
+###
+POST {{BaseUrl}}/CheckingAccount
+Content-Type: application/json  
+
+{
+  "OpeningBalance": 10000
+}
+ 
+###
+@CheckingAccountId=8623ea11-1d0d-4987-8077-8e92d69fb5a3
+###
+GET {{BaseUrl}}/CheckingAccount/{{CheckingAccountId}}/balance
+Content-Type: application/json 

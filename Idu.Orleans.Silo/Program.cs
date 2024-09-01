@@ -9,7 +9,7 @@ await Host.CreateDefaultBuilder(args)
                 //https://learn.microsoft.com/id-id/dotnet/orleans/host/configuration-guide/configuring-ado-dot-net-providers
                 options.Invariant = "System.Data.SqlClient";
                 options.ConnectionString = "Server=SUHUT-TUF;Database=IDU_ORLEANS;TrustServerCertificate=True;Trusted_Connection=True;MultipleActiveResultSets=true;Application Name=OrleansApp;";
-
+                
             });
 
             siloBuilder.Configure<ClusterOptions>(options =>

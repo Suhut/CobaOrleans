@@ -10,9 +10,11 @@ Content-Type: application/json
  
 ###
 @CheckingAccountId=db3a8f55-726c-4552-a762-7057a112ead0
+
 ###
 GET {{BaseUrl}}/CheckingAccount/{{CheckingAccountId}}/balance
 Content-Type: application/json   
+
 ###
 POST {{BaseUrl}}/CheckingAccount/{{CheckingAccountId}}/debit
 Content-Type: application/json 
@@ -26,4 +28,21 @@ Content-Type: application/json
 
 {
   "Amount": 500
+}
+
+###
+POST {{BaseUrl}}/Atm 
+Content-Type: application/json   
+
+{
+  "Amount": 10000
+}
+
+###
+POST {{BaseUrl}}/Atm/51c586fc-baa2-4567-a7f1-bcfede89e9ab/withdraw
+Content-Type: application/json   
+
+{
+  "CheckingAccountId":"{{CheckingAccountId}}",
+  "Amount": 1000
 }

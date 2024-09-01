@@ -1,7 +1,6 @@
 using Idu.Orleans.Client.Contracts;
 using Idu.Orleans.Grains.Abstractions;
 using Orleans.Configuration;
-using Orleans.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,7 +51,7 @@ app.MapPost("CheckingAccount",
     return TypedResults.Created($"CheckingAccount/{checkingAccountId}");
 });
 
-app.MapPost("CheckingAccount/{checkingAccountId}/debit",
+app.MapPost("CheckingAccount/{checkingAccountId:guid}/debit",
     async (
          Guid checkingAccountId,
         Debit debit,
@@ -68,7 +67,7 @@ app.MapPost("CheckingAccount/{checkingAccountId}/debit",
  
 
 
-app.MapPost("CheckingAccount/{checkingAccountId}/credit",
+app.MapPost("CheckingAccount/{checkingAccountId:guid}/credit",
     async (
          Guid checkingAccountId,
         Credit credit,
@@ -78,6 +77,35 @@ app.MapPost("CheckingAccount/{checkingAccountId}/credit",
         var checkingAccountGrain = clusterClient.GetGrain<ICheckingAcountGrain>(checkingAccountId);
 
         await checkingAccountGrain.Credit(credit.Amount);
+
+        return TypedResults.NoContent();
+    });
+
+app.MapPost("Atm",
+    async ( 
+        CreateAtm createAtm,
+    IClusterClient clusterClient) =>
+    {
+        var atmId = Guid.NewGuid();
+
+        var atmGrain = clusterClient.GetGrain<IAtmGrain>(atmId);
+
+        await atmGrain.Initialise(createAtm.InitialAtmCashBalance);
+
+        return TypedResults.Created($"atm/{atmId}");
+    });
+
+
+app.MapPost("Atm/{atmId:guid}/withdraw",
+    async (
+         Guid atmId,
+        AtmWithdraw atmWithdraw,
+    IClusterClient clusterClient) =>
+    {
+
+        var atmGrain = clusterClient.GetGrain<IAtmGrain>(atmId);
+
+        await atmGrain.Withdraw(atmWithdraw.CheckingAccountId, atmWithdraw.Amount);
 
         return TypedResults.NoContent();
     });

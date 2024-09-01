@@ -6,4 +6,5 @@ public interface ICheckingAcountGrain : IGrainWithGuidKey
     Task<decimal> GetBalance();
     Task Debit(decimal amount);
     Task Credit(decimal amount);
+    Task AddRecurringPayment(Guid id, decimal amount, int reccursEveryMin);
 }

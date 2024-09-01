@@ -46,3 +46,13 @@ Content-Type: application/json
   "CheckingAccountId":"{{CheckingAccountId}}",
   "Amount": 1000
 }
+
+###
+POST {{BaseUrl}}/CheckingAccount/{{CheckingAccountId}}/recurringPayment
+Content-Type: application/json   
+
+{
+  "PaymentId":"61c586fc-baa2-4567-a7f1-bcfede89e9ac",
+  "PaymentAmount": 1,
+  "PaymentRecurrsEveryMinutes":1
+}

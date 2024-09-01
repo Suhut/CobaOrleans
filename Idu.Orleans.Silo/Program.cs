@@ -30,6 +30,12 @@ await Host.CreateDefaultBuilder(args)
                 options.ConnectionString = "Server=SUHUT-TUF;Database=IDU_ORLEANS;TrustServerCertificate=True;Trusted_Connection=True;MultipleActiveResultSets=true;Application Name=OrleansApp;";
             });
 
+            siloBuilder.UseAdoNetReminderService(options =>
+            {
+                options.Invariant = "System.Data.SqlClient";
+                options.ConnectionString = "Server=SUHUT-TUF;Database=IDU_ORLEANS;TrustServerCertificate=True;Trusted_Connection=True;MultipleActiveResultSets=true;Application Name=OrleansApp;";
+            });
+
             //siloBuilder.Configure<GrainCollectionOptions>(options =>
             //{
             //    options.CollectionQuantum = TimeSpan.FromSeconds(20);

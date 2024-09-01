@@ -64,7 +64,7 @@ app.MapPost("CheckingAccount/{checkingAccountId:guid}/debit",
 
         return TypedResults.NoContent();
     });
- 
+
 
 
 app.MapPost("CheckingAccount/{checkingAccountId:guid}/credit",
@@ -81,8 +81,22 @@ app.MapPost("CheckingAccount/{checkingAccountId:guid}/credit",
         return TypedResults.NoContent();
     });
 
+app.MapPost("CheckingAccount/{checkingAccountId:guid}/recurringPayment",
+    async (
+         Guid checkingAccountId,
+        CreateRecurringPayment createRecurringPayment,
+    IClusterClient clusterClient) =>
+    {
+
+        var checkingAccountGrain = clusterClient.GetGrain<ICheckingAcountGrain>(checkingAccountId);
+
+        await checkingAccountGrain.AddRecurringPayment(createRecurringPayment.PaymentId, createRecurringPayment.PaymentAmount, createRecurringPayment.PaymentRecurrsEveryMinutes);
+
+        return TypedResults.NoContent();
+    });
+
 app.MapPost("Atm",
-    async ( 
+    async (
         CreateAtm createAtm,
     IClusterClient clusterClient) =>
     {
@@ -109,7 +123,6 @@ app.MapPost("Atm/{atmId:guid}/withdraw",
 
         return TypedResults.NoContent();
     });
-
 
 
 app.Run();

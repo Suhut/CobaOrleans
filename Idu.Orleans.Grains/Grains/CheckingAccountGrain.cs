@@ -1,18 +1,25 @@
 ﻿using Idu.Orleans.Grains.Abstractions;
 using Idu.Orleans.Grains.State;
+using Orleans;
+using Orleans.Concurrency;
+using Orleans.Transactions.Abstractions;
 
 namespace Idu.Orleans.Grains.Grains;
 
+[Reentrant]
 public class CheckingAccountGrain : Grain, ICheckingAcountGrain, IRemindable
 {
-    private readonly IPersistentState<BalanceState> _balanceState;
+    private readonly ITransactionClient _transactionClient;
+    private readonly ITransactionalState<BalanceState> _balanceTransactioState;
     private readonly IPersistentState<CheckingAccountState> _checkingAccountState;
     public CheckingAccountGrain(
-        [PersistentState("balance", "BalanceStorage")] IPersistentState<BalanceState> balanceState,
+        ITransactionClient transactionClient,
+        [TransactionalState("balance", "BalanceStorage")] ITransactionalState<BalanceState> balanceTransactioState,
         [PersistentState("checkingAccount", "CheckingAccountStorage")] IPersistentState<CheckingAccountState> checkingAccountState
         )
     {
-        _balanceState = balanceState;
+        _transactionClient = transactionClient;
+        _balanceTransactioState = balanceTransactioState;
         _checkingAccountState = checkingAccountState;
     }
 
@@ -31,7 +38,11 @@ public class CheckingAccountGrain : Grain, ICheckingAcountGrain, IRemindable
             var recurringPaymentId = Guid.Parse(reminderName.Split(":::").Last());
             var recuringPayment = _checkingAccountState.State.RecurringPayments.Single(x => x.PaymentId == recurringPaymentId);
 
-            await Debit(recuringPayment.PaymentAmount);
+            await _transactionClient.RunTransaction(TransactionOption.Create,async () =>
+            {
+                await Debit(recuringPayment.PaymentAmount);
+            });
+           
             Console.WriteLine($"RecurringPayment : {DateTime.Now.ToString("HH:mm:ss")}");
         }
 
@@ -48,10 +59,13 @@ public class CheckingAccountGrain : Grain, ICheckingAcountGrain, IRemindable
         //    Console.WriteLine($"Ending Timer : ");
         //}, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
 
-        var currentBalance = _balanceState.State.Balance;
-        var newBalance = currentBalance + amount;
-        _balanceState.State.Balance = newBalance;
-        await _balanceState.WriteStateAsync();
+        await _balanceTransactioState.PerformUpdate(state =>
+        {
+            var currentBalance = state.Balance;
+            var newBalance = currentBalance + amount;
+            state.Balance = newBalance;
+        });
+
     }
     public async Task Debit(decimal amount)
     {
@@ -62,15 +76,19 @@ public class CheckingAccountGrain : Grain, ICheckingAcountGrain, IRemindable
         //    Console.WriteLine($"Ending Debit : ");
         //} 
 
-        var currentBalance = _balanceState.State.Balance;
-        var newBalance = currentBalance - amount;
-        _balanceState.State.Balance = newBalance;
-        await _balanceState.WriteStateAsync();
+        await _balanceTransactioState.PerformUpdate(state =>
+        {
+            var currentBalance = state.Balance;
+            var newBalance = currentBalance - amount;
+            state.Balance = newBalance;
+
+        });
+
     }
 
     public async Task<decimal> GetBalance()
     {
-        return _balanceState.State.Balance;
+        return await _balanceTransactioState.PerformRead(state => state.Balance);
     }
 
     public async Task Initialise(decimal openingBalance)
@@ -81,9 +99,11 @@ public class CheckingAccountGrain : Grain, ICheckingAcountGrain, IRemindable
 
         _checkingAccountState.State.OpenedAtUtc = DateTime.UtcNow;
 
+        await _balanceTransactioState.PerformUpdate(state =>
+        {
+            state.Balance = openingBalance;
+        });
 
-        _balanceState.State.Balance = openingBalance;
-        await _balanceState.WriteStateAsync();
         await _checkingAccountState.WriteStateAsync();
     }
 }

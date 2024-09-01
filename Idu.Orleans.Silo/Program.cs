@@ -36,6 +36,8 @@ await Host.CreateDefaultBuilder(args)
                 options.ConnectionString = "Server=SUHUT-TUF;Database=IDU_ORLEANS;TrustServerCertificate=True;Trusted_Connection=True;MultipleActiveResultSets=true;Application Name=OrleansApp;";
             });
 
+            siloBuilder.UseTransactions();
+
             //siloBuilder.Configure<GrainCollectionOptions>(options =>
             //{
             //    options.CollectionQuantum = TimeSpan.FromSeconds(20);

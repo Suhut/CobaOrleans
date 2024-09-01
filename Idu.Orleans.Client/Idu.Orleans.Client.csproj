@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Orleans.Client" Version="8.2.0" />
     <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="8.2.0" />
+    <PackageReference Include="Microsoft.Orleans.Transactions" Version="8.2.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
   </ItemGroup>
 
